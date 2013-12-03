@@ -1,0 +1,20 @@
+#PBS  -N test 
+# preciser le temps en heures, minutes, secondes
+#PBS -l walltime=00:30:00 
+# preciser la memoire en megabytes ou gigabytes
+#PBS -l mem=5gb 
+
+# nombre de noeuds et de coeurs
+#PBS -l nodes=1:ppn=4
+
+cd /home/beaugend/MPI_UNST/PROG_c 
+
+# Chargement des modules :
+##module load meta/intel-mvapich2
+module load tools/torque
+module load compiler/intel/11.1-075 
+module load mpi/openmpi/1.4.3
+module load mpi/mpiexec/0.84
+
+mpiexec ./fem.exe  > sortie
+

@@ -1,0 +1,32 @@
+(CREMI: gcc -o Preprocess.exe Preprocess.c; mpicc.openmpi -o fem.exe FemPar.c)
+
+
+To create Mesh.Data from a metis partition:
+
+Take the meshprogc.data and add at the end the informations provided by METIS.
+cat dualformetis.dat.epart.4 >> meshprogc.data  
+cp meshprogc.data Mesh.Data
+
+
+To create Mesh.Data from a scotch partition:
+gcc -lm -o fromscotch.exe fromscotch.c
+Input: meshprogc.data and dualforscotch.map
+
+
+To create the Sub-mesh:
+gcc -lm -o Preprocess.exe Preprocess.c
+
+The Input is Mesh.Data
+The Output are Data00.In, Data01.In, Data02.In and Data03.In.
+
+
+To run the Finite element prog in // using mpi on mygale:
+
+
+module add compiler/intel/11.1-075
+module add mpi/openmpi/1.4.3
+module aad tools/torque/...
+
+
+gcc -lm -lmpi -o fem.exe FemPar.c
+qsub batch

@@ -1,0 +1,59 @@
+The initial mesh is in the file mesh.data
+data2tec.f90 : read mesh.data, create the file mesh.plt (tecplot/visit format of the mesh), create the entry files 
+for metis (formetis.dat (nodes based partition) and dualformetis.dat (elements based partition)) and scotch.
+
+
+METIS: dual mesh partition
+
+1st solution: directly use partdmesh, command:  metis-4.0.3/partdmesh dualformetis.dat 4 
+		output: dualformetis.dat.epart.4 and dualformetis.dat.npart.4
+
+2nd solution: create first the dual graph, command:  metis-4.0.3/mesh2dual dualformetis.dat 
+		output: dualformetis.dat.dgraph
+   and then create the partition, command: metis-4.0.3/kmetis dualformetis.dat.dgraph 4
+		output: dualformetis.dat.dgraph.part.4
+
+NOTE: dualformetis.dat.epart.4 and dualformetis.dat.dgraph.part.4 ARE IDENTICAL.
+
+
+
+
+SCOTCH: dual mesh partition
+
+1st solution:	cp dualformetis.dat dualforscotch.dat 
+		modification of the io.c routine in metis, done in metis_modified_for_scotch
+		run metis_modified_for_scotch/mesh2dual dualforscotch.dat
+		output: dualforscotch.dat.dgraph
+		cp dualforscotch.dat.dgraph dualforscotch.grf
+
+		modify the head of dualforscotch.grf  
+
+dualforscotch.dat.dgraph
+5768 17104
+2 199 200 
+2 202 201 
+2 201 203 
+2 203 204 
+2 204 205 
+
+dualforscotch.grf
+0
+5768 17104
+0 000
+2 199 200 
+2 202 201 
+2 201 203 
+2 203 204 
+
+                
+		verify the consitency of this scotch .grf file, command : scotch_5.1.11/bin/gtst dualforscotch.grf
+		partition: echo cmplt 4 | scotch_5.1.11/bin/gmap dualforscotch.grf - dualforscotch.map
+		dualforscotch.map contains the number of elements and for each element the element number followed by partition number
+		(similar to dualformetis.dat.epart.4 and dualformetis.dat.dgraph.part.4)
+
+
+Construction of the mesh for each partition: 
+
+postprocess.f90 (should be modified for scotch)
+This program reads mesh.data and dual.dpart (=dualformetis.dat.dgraph.part.4) 
+It creates decomp.plt (can be seen with visit)
