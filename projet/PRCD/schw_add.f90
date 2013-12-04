@@ -23,6 +23,14 @@ program schwarz_additif
 	real*8, dimension(:), allocatable :: U, Uold, RHS, Uschwarz
 	real*8, dimension(:), allocatable :: Utop, Ubottom
 	integer	:: i,j,k
+	character*10 :: mode
+
+	if(iargc()/=0) then
+		call getarg(1, mode)
+		mode = TRIM(mode)
+	else
+		mode = "0"
+	endif
 
         Ny = 10!*Np
         Nx = 10 
@@ -58,7 +66,7 @@ program schwarz_additif
 	ALLOCATE(Utop(1:Nx));ALLOCATE(Ubottom(1:Nx))
 
 	! Initialisation du probleme
-        U(1:N)    = 0.0d0
+    U(1:N)    = 0.0d0
 	Utop	    = 0.0d0
 	Ubottom	    = 0.0d0
 
@@ -67,8 +75,14 @@ program schwarz_additif
 		! Remplissage du second membre incluant les conditions de Bords Dirichlet
 		call second_membre(RHS,U,Utop,Ubottom,77,77,1,N,Nx,dx,dy,Cx,Cy)
 		! Resolution du systeme lineaire
-		call jacobi(Aii,Cx,Cy,Nx,1,N,RHS,U,Uold,l)
-!~ 		call   grad(Aii,Cx,Cy,Nx,1,N,RHS,U,l)
+		if(mode == "0")then
+			call grad(Aii,Cx,Cy,Nx,1,N,RHS,U,l)
+		else if(mode == "1")then
+			call gauss(Aii,Cx,Cy,Nx,1,N,RHS,U, Uold)
+		else
+			call jacobi(Aii,Cx,Cy,Nx,1,N,RHS,U,Uold,l)
+		endif
+!~ 		call jacobi(Aii,Cx,Cy,Nx,1,N,RHS,U,Uold,l)
 
 	call wrisol( U,Nx,Ny,dx,dy,77,1,N )
 	DEALLOCATE(U,RHS,Uold)

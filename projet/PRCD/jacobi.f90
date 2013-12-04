@@ -7,10 +7,10 @@
 	real*8, dimension(i1:iN), intent(inout)	:: U,Uold
 	real*8, dimension(i1:iN), intent(in) :: B
 
-	Tol = 1.d-16!1d-18
+	Tol = 1.d-12!1d-18
 	invAii = 1.d0/Aii
 	j = 0
-	max_iter = 10000
+	max_iter = 100000
 	M = (iN-i1+1)/Nx
 	err = 100.d0
 

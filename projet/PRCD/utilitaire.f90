@@ -84,8 +84,8 @@ CONTAINS
 	real*8, intent(in)	:: x,y,t
 	real*8	:: right
 
-	right = 0.d0
-!~ 	right = sin(x)+cos(y)
+!~ 	right = 0.d0
+	right = sin(x)+cos(y)
    END FUNCTION right
 
    FUNCTION left(x,y,t)
@@ -93,8 +93,8 @@ CONTAINS
 	real*8, intent(in)	:: x,y,t
 	real*8	:: left
 
-	left = 0.d0
-!~ 	left = sin(x)+cos(y)
+!~ 	left = 0.d0
+	left = sin(x)+cos(y)
    END FUNCTION left
 
    FUNCTION bottom(x,y,t)
@@ -102,8 +102,8 @@ CONTAINS
 	real*8, intent(in)	:: x,y,t
 	real*8	:: bottom
 
-	bottom = 0.d0
-!~ 	bottom = sin(x)+cos(y)
+!~ 	bottom = 0.d0
+	bottom = sin(x)+cos(y)
    END FUNCTION bottom
 
    FUNCTION top(x,y,t)
@@ -111,8 +111,8 @@ CONTAINS
 	real*8, intent(in)	:: x,y,t
 	real*8	:: top
 
-	top = 0.0d0
-!~ 	top = sin(x)+cos(y)
+!~ 	top = 0.0d0
+	top = sin(x)+cos(y)
    END FUNCTION top
 
    FUNCTION f(x,y,t)
@@ -120,8 +120,8 @@ CONTAINS
 	real*8	:: x,y,t
 	real*8	:: f
 
-	f = 2.d0*(y - y*y + x - x*x) 
-!~ 	f = sin(x)+cos(y)
+!~ 	f = 2.d0*(y - y*y + x - x*x) 
+	f = sin(x)+cos(y)
    END FUNCTION f
 
 end MODULE utils
