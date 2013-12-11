@@ -27,8 +27,8 @@
          drl = 0.0d0
          dwl = 0.0d0
          DO i = i1, iN
-           drl = drl + d(i)*r(i)
-	   dwl = dwl + d(i)*w(i)
+			drl = drl + d(i)*r(i)
+			dwl = dwl + d(i)*w(i)
          ENDDO
       
          alpha = drl/dwl
