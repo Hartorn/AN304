@@ -6,16 +6,16 @@ CONTAINS
       implicit none
       integer :: i1,iN,Me,Np,N
       integer :: r,q
-       
+
        q = N/Np
        r = N - q*Np
-       
+
        IF( Me < r ) THEN
           i1 = Me*( q+1 ) + 1
-	  iN = ( Me + 1 )*( q + 1 )
+      iN = ( Me + 1 )*( q + 1 )
        ELSE
           i1 = 1 + r + Me*q
-	  iN = i1 + q - 1
+      iN = i1 + q - 1
        END IF
 
    END SUBROUTINE charge
@@ -64,9 +64,9 @@ CONTAINS
       real*8  :: posx,posy
       CHARACTER(LEN=13) :: name
 
-      CALL RENAME(Me,name) 
+      CALL RENAME(Me,name)
 
-      unit = 7  
+      unit = 7
       open(unit,file=name,status='unknown',form='formatted')
       DO i = i1, iN
            CALL nloc(j,k,i,Nx)
@@ -80,48 +80,48 @@ CONTAINS
    END SUBROUTINE wrisol
 
    FUNCTION right(x,y,t)
-	implicit none
-	real*8, intent(in)	:: x,y,t
-	real*8	:: right
+    implicit none
+    real*8, intent(in)  :: x,y,t
+    real*8  :: right
 
-!~ 	right = 0.d0
-	right = sin(x)+cos(y)
+!~  right = 0.d0
+    right = sin(x)+cos(y)
    END FUNCTION right
 
    FUNCTION left(x,y,t)
-	implicit none
-	real*8, intent(in)	:: x,y,t
-	real*8	:: left
+    implicit none
+    real*8, intent(in)  :: x,y,t
+    real*8  :: left
 
-!~ 	left = 0.d0
-	left = sin(x)+cos(y)
+!~  left = 0.d0
+    left = sin(x)+cos(y)
    END FUNCTION left
 
    FUNCTION bottom(x,y,t)
-	implicit none
-	real*8, intent(in)	:: x,y,t
-	real*8	:: bottom
+    implicit none
+    real*8, intent(in)  :: x,y,t
+    real*8  :: bottom
 
-!~ 	bottom = 0.d0
-	bottom = sin(x)+cos(y)
+!~  bottom = 0.d0
+    bottom = sin(x)+cos(y)
    END FUNCTION bottom
 
    FUNCTION top(x,y,t)
-	implicit none
-	real*8, intent(in)	:: x,y,t
-	real*8	:: top
+    implicit none
+    real*8, intent(in)  :: x,y,t
+    real*8  :: top
 
-!~ 	top = 0.0d0
-	top = sin(x)+cos(y)
+!~  top = 0.0d0
+    top = sin(x)+cos(y)
    END FUNCTION top
 
    FUNCTION f(x,y,t)
-	implicit none
-	real*8	:: x,y,t
-	real*8	:: f
+    implicit none
+    real*8  :: x,y,t
+    real*8  :: f
 
-!~ 	f = 2.d0*(y - y*y + x - x*x) 
-	f = sin(x)+cos(y)
+!~  f = 2.d0*(y - y*y + x - x*x)
+    f = sin(x)+cos(y)
    END FUNCTION f
 
 end MODULE utils
