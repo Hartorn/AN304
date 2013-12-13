@@ -36,8 +36,8 @@ program schwarz_additif
     max_iter = 100000
     j=0
 
-    if(iargc()/=0) then
-        call getarg(1, mode)
+    if(COMMAND_ARGUMENT_COUNT()/=0) then
+        call GET_COMMAND_ARGUMENT(1, mode)
         mode = TRIM(mode)
     else
         mode = "0"
