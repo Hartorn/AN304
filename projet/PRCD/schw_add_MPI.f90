@@ -144,9 +144,11 @@ program schwarz_additif
 		call MPI_Wait(recv_bottom, IERROR)
 		endif
 	
+	write(*,*) 'debut boucle err:', err,' j:', j
+
 	! Boucle tant que non convergence
 	Do while ((err > eps) .AND. (j < max_iter))
-	teite*) 'debut boucle err:', err,' j:', j
+	write(*,*) 'debut boucle err:', err,' j:', j
 		! Communication entre les vecteurs
 		if (myrank == 0)then
 		call MPI_Start(send_top, IERROR)
