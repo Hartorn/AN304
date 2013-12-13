@@ -8,21 +8,27 @@ OBJ= $(SRC:.f90=.o)
 all: $(PROGRAMS)
 
 schwarz_additif: $(OBJ) utils.mod
-	$(FC) $(FCFLAGS) -o $@ $(OBJ) $(LDFLAGS)
+	$(FC) $(FCFLAGS) -o $@ $(OBJ) $(LDFLAGS) >> make.log 2&1
 
 utils.mod : utilitaire.o utilitaire.f90
-	$(FC) $(FCFLAGS) -c $^
+	$(FC) -std=f2003 -c $^
 
 schw_add_MPI.o : schw_add_MPI.f90 utils.mod
 	$(FC) $(FCFLAGS) -c $<
 
+second_membre.o : second_membre.f90
+	$(FC) -std=f2003 -c $<
+	
+matvec.o : matvec.f90
+	$(FC) -std=f2003 -c $<
+
 %.o: %.f90
-	$(FC) $(FCFLAGS) -c $<
+	$(FC) $(FCFLAGS) -c $< >> make.log 2&1
 
 .PHONY: clean mrproper
 
 clean:
-	rm -f *.o *.mod *.MOD
+	rm -f *.o *.mod *.MOD make.log
 
 mrproper: clean
 	rm -f *~ $(PROGRAMS)
