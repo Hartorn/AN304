@@ -9,7 +9,7 @@ program schwarz_additif
 
 	! Declaration des variables pour schwarz
 	real*8, parameter  :: eps = 1.d-12
-	real*8	:: ERR,ERR_glob
+	real*8	:: ERROR,ERR_glob
 	! Decalaration des variables MPI et charges	
         integer	:: itop,ibottom	 !indice de localisation des debuts de msg a envoyer
 	! Declaration des variables numeriques
@@ -100,7 +100,7 @@ program schwarz_additif
     U(1:N)    = 0.0d0
 	Utop(1:Nx)  = 0.0d0
 	Ubottom(1:Nx)  = 0.0d0
-	err=1
+	error=1
 
 !	schw_iter = 0
 	ERR_glob = 1.d3
@@ -143,12 +143,12 @@ program schwarz_additif
 		call MPI_Wait(recv_top, IERROR)
 		call MPI_Wait(recv_bottom, IERROR)
 		endif
-        err=1	
-	!write(*,*) 'debut boucle err:', err,' j:', j
+        error=1	
+	!write(*,*) 'debut boucle err:', error,' j:', j
 
 	! Boucle tant que non convergence
-	Do while ((err > eps) .AND. (j < max_iter))
-	write(*,*) 'debut boucle err:', err,' j:', j
+	Do while ((error > eps) .AND. (j < max_iter))
+	write(*,*) 'debut boucle err:', error,' j:', j
 		! Communication entre les vecteurs
 		if (myrank == 0)then
 		call MPI_Start(send_top, IERROR)
@@ -167,7 +167,6 @@ program schwarz_additif
 	Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)
 
 		! Resolution du systeme lineaire (une iteration)
-		! ajout du parametre err, pour recuperer l erreur
 			if(mode == "0")then
 				call grad(Aii,Cx,Cy,Nx,1,N,RHS,U,l)
 			else if(mode == "1") then
@@ -188,12 +187,12 @@ program schwarz_additif
 		
 		!calcul de l erreur
 		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
-        err=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
-        write(*,*)'avant allreduce err :', err		
+        error=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
+        write(*,*)'avant allreduce err :', error		
 		
 		! Test de verification de convergence (MPI_all_reduce)
-		call MPI_Allreduce(err, err,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
-		write(*,*)'avant allreduce err :', err	
+		call MPI_Allreduce(MPI_IN_PLACE, error,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
+		write(*,*)'apres allreduce err :', error	
 		j=j+1
 		
 		! Attente de la fin des receptions
@@ -206,7 +205,7 @@ program schwarz_additif
 			call MPI_Wait(recv_bottom, IERROR)
 		endif
 	ENDDO
-		write(*,*) 'fin , convergence en ', j, 'iterations', err
+		write(*,*) 'fin , convergence en ', j, 'iterations', error
 !~ 		call jacobi(Aii,Cx,Cy,Nx,1,N,RHS,U,Uold,l)
 
 	call wrisol( U,Nx,Ny,dx,dy,77,1,N )
