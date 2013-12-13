@@ -26,7 +26,7 @@ program schwarz_additif
     double precision, dimension(:), allocatable :: U, Uold, RHS, Uschwarz
     double precision, dimension(:), allocatable :: Utop, Ubottom
     integer :: i,j,k
-    character*10 :: mode
+    character(len=10) :: mode
     integer :: send_bottom, recv_bottom, send_top, recv_top
 
     call MPI_Init(IERROR)
@@ -158,7 +158,7 @@ program schwarz_additif
         else if(mode == "1") then
             call gauss(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U, Uold)
         else
-            call jacobi(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U,Uold,l)
+            call jacobi(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U,Uold)
         endif
 
         ! Attente de la fin des envois
