@@ -7,8 +7,10 @@ OBJ= $(SRC:.f90=.mod)
 
 all: $(PROGRAMS)
 
-schwarz_additif: $(OBJ)
+schwarz_additif: $(OBJ) utils.mod
 	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+
+utils.mod : utilitaire.o utilitaire.f90
 #~ 
 #~ %: %.o
 	#~ $(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
