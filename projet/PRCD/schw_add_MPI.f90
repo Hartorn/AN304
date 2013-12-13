@@ -197,12 +197,12 @@ program schwarz_additif
 		
 		! Attente de la fin des receptions
 		if (myrank == 0)then
-			call MPI_Wait(recv_top, IERROR)
+			call MPI_Wait(recv_top, MPI_STATUS_IGNORE, IERROR)
 		elseif (myrank == (wsize - 1)) then
-			call MPI_Wait(recv_bottom, IERROR)
+			call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE, IERROR)
 		else
-			call MPI_Wait(recv_top, IERROR)
-			call MPI_Wait(recv_bottom, IERROR)
+			call MPI_Wait(recv_top, MPI_STATUS_IGNORE, IERROR)
+			call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE, IERROR)
 		endif
 		write(*,*)'fin boucle :', error_calcul, 'j:', j	
 	ENDDO
