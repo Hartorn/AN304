@@ -8,10 +8,10 @@ OBJ= $(SRC:.f90=.mod)
 all: $(PROGRAMS)
 
 schwarz_additif: $(OBJ) utils.mod
-	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+	$(FC) $(FCFLAGS) -o $@ $(OBJ) $(LDFLAGS)
 
 utils.mod : utilitaire.o utilitaire.f90
-	$(FC) $(FCFLAGS) -c $<
+	$(FC) $(FCFLAGS) -c $^
 
 schw_add_MPI.o : schw_add_MPI.f90 utils.mod
 	$(FC) $(FCFLAGS) -c $<
