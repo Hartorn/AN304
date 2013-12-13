@@ -11,9 +11,10 @@ schwarz_additif: $(OBJ) utils.mod
 	$(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
 
 utils.mod : utilitaire.o utilitaire.f90
-#~ 
-#~ %: %.o
-	#~ $(FC) $(FCFLAGS) -o $@ $^ $(LDFLAGS)
+	$(FC) $(FCFLAGS) -c $<
+
+schw_add_MPI.o : schw_add_MPI.f90 utils.mod
+	$(FC) $(FCFLAGS) -c $<
 
 %.o: %.f90
 	$(FC) $(FCFLAGS) -c $<
