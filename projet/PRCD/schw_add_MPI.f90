@@ -187,7 +187,7 @@ program schwarz_additif
 		
 		!calcul de l erreur
 		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
-        error=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
+        error_calcul = sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
         write(*,*)'avant allreduce err :', error_calcul		
 		
 		! Test de verification de convergence (MPI_all_reduce)
