@@ -58,10 +58,10 @@ CONTAINS
    SUBROUTINE wrisol(U,Nx,Ny,dx,dy,Me,i1,iN)
       implicit none
       integer :: Me,Nx,Ny,i1,iN
-      real*8  :: dx,dy
-      real*8, dimension(i1:iN) :: U
+      double precision  :: dx,dy
+      double precision, dimension(i1:iN) :: U
       integer :: unit,i,j,k
-      real*8  :: posx,posy
+      double precision  :: posx,posy
       CHARACTER(LEN=13) :: name
 
       CALL RENAME(Me,name)
@@ -81,8 +81,8 @@ CONTAINS
 
    FUNCTION right(x,y,t)
     implicit none
-    real*8, intent(in)  :: x,y,t
-    real*8  :: right
+    double precision, intent(in)  :: x,y,t
+    double precision  :: right
 
 !~  right = 0.d0
     right = sin(x)+cos(y)
@@ -90,8 +90,8 @@ CONTAINS
 
    FUNCTION left(x,y,t)
     implicit none
-    real*8, intent(in)  :: x,y,t
-    real*8  :: left
+    double precision, intent(in)  :: x,y,t
+    double precision  :: left
 
 !~  left = 0.d0
     left = sin(x)+cos(y)
@@ -99,8 +99,8 @@ CONTAINS
 
    FUNCTION bottom(x,y,t)
     implicit none
-    real*8, intent(in)  :: x,y,t
-    real*8  :: bottom
+    double precision, intent(in)  :: x,y,t
+    double precision  :: bottom
 
 !~  bottom = 0.d0
     bottom = sin(x)+cos(y)
@@ -108,8 +108,8 @@ CONTAINS
 
    FUNCTION top(x,y,t)
     implicit none
-    real*8, intent(in)  :: x,y,t
-    real*8  :: top
+    double precision, intent(in)  :: x,y,t
+    double precision  :: top
 
 !~  top = 0.0d0
     top = sin(x)+cos(y)
@@ -117,8 +117,8 @@ CONTAINS
 
    FUNCTION f(x,y,t)
     implicit none
-    real*8  :: x,y,t
-    real*8  :: f
+    double precision  :: x,y,t
+    double precision  :: f
 
 !~  f = 2.d0*(y - y*y + x - x*x)
     f = sin(x)+cos(y)

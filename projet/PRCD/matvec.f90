@@ -19,9 +19,9 @@ subroutine matvec(Aii,Cx,Cy,Nx,m,i1,U,AU)
 
     implicit none
     integer, intent(in) :: Nx,m,i1
-    real*8, intent(in)  :: Aii,Cx,Cy
-    real*8, dimension(i1:Nx*m), intent(in)  :: U
-    real*8, dimension(i1:Nx*m), intent(out) :: AU
+    double precision, intent(in)  :: Aii,Cx,Cy
+    double precision, dimension(i1:Nx*m), intent(in)  :: U
+    double precision, dimension(i1:Nx*m), intent(out) :: AU
     integer :: i,j,k
 
 !Premier bloc

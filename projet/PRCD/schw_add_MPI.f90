@@ -8,8 +8,8 @@ program schwarz_additif
     include 'mpif.h'
 
     ! Declaration des variables pour schwarz
-    real*8, parameter  :: eps = 1.d-12
-    real*8  :: error_calcul ,ERR_glob
+    double precision, parameter  :: eps = 1.d-12
+    double precision  :: error_calcul ,ERR_glob
 
     ! Decalaration des variables MPI et charges
     integer :: itop,ibottom  !indice de localisation des debuts de msg a envoyer
@@ -17,14 +17,14 @@ program schwarz_additif
     ! Declaration des variables numeriques
     integer :: l,Max_l
     integer :: R
-    real*8  :: t_debut,t_fin,t_max
+    double precision  :: t_debut,t_fin,t_max
 
     ! Declaration des variables du pb a resoudre
     integer :: Nx,Ny,N, myrank, wsize, IERROR, Nb_ligne_proc, max_iter, reste
-    real*8  :: dx,dy,Lx,Ly,posx,posy
-    real*8  :: Aii,Cx,Cy,D
-    real*8, dimension(:), allocatable :: U, Uold, RHS, Uschwarz
-    real*8, dimension(:), allocatable :: Utop, Ubottom
+    double precision  :: dx,dy,Lx,Ly,posx,posy
+    double precision  :: Aii,Cx,Cy,D
+    double precision, dimension(:), allocatable :: U, Uold, RHS, Uschwarz
+    double precision, dimension(:), allocatable :: Utop, Ubottom
     integer :: i,j,k
     character*10 :: mode
     integer :: send_bottom, recv_bottom, send_top, recv_top

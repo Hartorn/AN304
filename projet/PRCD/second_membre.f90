@@ -2,12 +2,12 @@ subroutine second_membre(B,U,Utop,Ubottom,Me,Np,i1,iN,Nx,dx,dy,Cx,Cy)
     USE utils
     implicit none
     integer, intent(in) :: i1,iN,Nx,Me,Np
-    real*8, intent(in)  :: dx,dy,Cx,Cy
-    !real*8 :: left,right,bottom,top
-        real*8  :: posx,posy
-    real*8, dimension(i1:iN), intent(out):: B
-    real*8, dimension(i1:iN), intent(in):: U
-    real*8, dimension(1:Nx) :: Utop,Ubottom
+    double precision, intent(in)  :: dx,dy,Cx,Cy
+    !double precision :: left,right,bottom,top
+        double precision  :: posx,posy
+    double precision, dimension(i1:iN), intent(out):: B
+    double precision, dimension(i1:iN), intent(in):: U
+    double precision, dimension(1:Nx) :: Utop,Ubottom
 
     integer :: i,j,k,l,M
 

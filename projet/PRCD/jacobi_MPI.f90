@@ -1,11 +1,11 @@
     subroutine jacobi(Aii,Cx,Cy,Nx,i1,iN,B,U,Uold,j)
     implicit none
 
-    real*8  :: Aii,Cx,Cy, invAii,epsilon,err,Tol
+    double precision  :: Aii,Cx,Cy, invAii,epsilon,err,Tol
     integer, intent(out)    :: j
     integer     :: max_iter,i1,iN,Nx,M
-    real*8, dimension(i1:iN), intent(inout) :: U,Uold
-    real*8, dimension(i1:iN), intent(in) :: B
+    double precision, dimension(i1:iN), intent(inout) :: U,Uold
+    double precision, dimension(i1:iN), intent(in) :: B
 
     Tol = 1.d-12!1d-18
     invAii = 1.d0/Aii

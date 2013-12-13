@@ -2,8 +2,8 @@
     implicit none
     integer :: j, i, k, min_boucle, max_boucle
     integer :: i1,iN, max_iter, Nx
-    real*8  :: Aii,Cx,Cy,invAii,err,Tol, M
-    real*8, DIMENSION(i1:iN)    :: U,B, Uold
+    double precision  :: Aii,Cx,Cy,invAii,err,Tol, M
+    double precision, DIMENSION(i1:iN)    :: U,B, Uold
 
     j = 0
     max_iter = 100000

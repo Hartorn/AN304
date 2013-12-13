@@ -2,9 +2,9 @@
       implicit none
     integer, intent(out)    :: l
     integer         :: i1,iN,i,Nx,Nl,M
-    real*8  :: residu,alpha,beta,drl,dwl, epsilon
-    real*8  :: Aii,Cx,Cy
-    real*8, DIMENSION(i1:iN)    :: U,B,r,kappa,d,W
+    double precision  :: residu,alpha,beta,drl,dwl, epsilon
+    double precision  :: Aii,Cx,Cy
+    double precision, DIMENSION(i1:iN)    :: U,B,r,kappa,d,W
 
 
       epsilon = 1.d-12
