@@ -1,6 +1,6 @@
 FC = mpif90.openmpi
-FCFLAGS = -fbounds-check -ffree-form -std=f95 -pedantic-errors -Wall -Wconversion -Wunderflow -Wextra -Wunreachable-code -ffpe-trap=invalid,zero,overflow,underflow -g3 -fbounds-check -O0 -fstack-protector-all 
-#~ FCFLAGS = -O3
+FCFLAGS = -fbounds-check -ffree-form -std=f95 -pedantic-errors -Wall -Wconversion -Wunderflow -Wextra -Wunreachable-code -ffpe-trap=invalid,zero,overflow,underflow -g3 -fbounds-check -O0 -fstack-protector-all -std=f2003
+#~ FCFLAGS = -O3 -std=f2003
 PROGRAMS = schwarz_additif 
 SRC= $(wildcard *.f90)
 OBJ= $(SRC:.f90=.o)
