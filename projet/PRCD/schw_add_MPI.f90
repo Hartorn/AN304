@@ -148,7 +148,7 @@ program schwarz_additif
 
 	! Boucle tant que non convergence
 	Do while ((error_calcul > eps) .AND. (j < max_iter))
-	write(*,*) 'debut boucle err:', error_calcul,' j:', j
+!~ 	write(*,*) 'debut boucle err:', error_calcul,' j:', j
 		! Communication entre les vecteurs
 		if (myrank == 0)then
 		call MPI_Start(send_top, IERROR)
@@ -188,11 +188,11 @@ program schwarz_additif
 		!calcul de l erreur
 		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
         error_calcul = sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
-        write(*,*)'avant allreduce err :', error_calcul		
+!~         write(*,*)'avant allreduce err :', error_calcul		
 		
 		! Test de verification de convergence (MPI_all_reduce)
 		call MPI_Allreduce(MPI_IN_PLACE, error_calcul,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
-		write(*,*)'apres allreduce err :', error_calcul	
+!~ 		write(*,*)'apres allreduce err :', error_calcul	
 		j=j+1
 		
 		! Attente de la fin des receptions
@@ -204,7 +204,7 @@ program schwarz_additif
 			call MPI_Wait(recv_top, MPI_STATUS_IGNORE, IERROR)
 			call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE, IERROR)
 		endif
-		write(*,*)'fin boucle :', error_calcul, 'j:', j	
+!~ 		write(*,*)'fin boucle :', error_calcul, 'j:', j	
 	ENDDO
 		write(*,*) 'fin , convergence en ', j, 'iterations', error_calcul
 !~ 		call jacobi(Aii,Cx,Cy,Nx,1,N,RHS,U,Uold,l)
