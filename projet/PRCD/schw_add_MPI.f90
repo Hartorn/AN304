@@ -189,10 +189,11 @@ program schwarz_additif
 		!calcul de l erreur
 		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
         err=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
-        write(*,*)'err :', err		
+        write(*,*)'avant allreduce err :', err		
 		
 		! Test de verification de convergence (MPI_all_reduce)
 		call MPI_Allreduce(err, err,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
+		write(*,*)'avant allreduce err :', err	
 		j=j+1
 		
 		! Attente de la fin des receptions
