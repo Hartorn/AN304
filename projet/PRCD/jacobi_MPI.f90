@@ -1,7 +1,7 @@
     subroutine jacobi(Aii,Cx,Cy,Nx,i1,iN,B,U,Uold,j)
     implicit none
 
-    double precision  :: Aii,Cx,Cy, invAii,epsilon,err,Tol
+    double precision  :: Aii,Cx,Cy, invAii,err,Tol
     integer, intent(out)    :: j
     integer     :: max_iter,i1,iN,Nx,M
     double precision, dimension(i1:iN), intent(inout) :: U,Uold
