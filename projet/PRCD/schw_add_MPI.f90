@@ -143,8 +143,8 @@ program schwarz_additif
 		call MPI_Wait(recv_top, IERROR)
 		call MPI_Wait(recv_bottom, IERROR)
 		endif
-	
-	write(*,*) 'debut boucle err:', err,' j:', j
+        err=1	
+	!write(*,*) 'debut boucle err:', err,' j:', j
 
 	! Boucle tant que non convergence
 	Do while ((err > eps) .AND. (j < max_iter))
@@ -188,10 +188,10 @@ program schwarz_additif
 		
 		!calcul de l erreur
 		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
-        err=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
-		
+                err=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
+                        write(*,*)'err :', err		
 		! Test de verification de convergence (MPI_all_reduce)
-		call MPI_Allreduce(MPI_IN_PLACE, err, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD)
+		call MPI_Allreduce(MPI_IN_Perr, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD)
 		j=j+1
 		
 		! Attente de la fin des receptions
