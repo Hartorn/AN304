@@ -89,7 +89,7 @@ program schwarz_additif
 !~ 	N = Nx*(Nb_ligne_proc+R)
 !~ 	endif
 	
-	 write(*,*) 'ibottom,', ibottom,'itop', itop
+	 write(*,*) 'ibottom,', ibottom,'itop', itop+Nx-1
 
     ! Allocation dynamique pour chaque proc en tenant compte du recouvrement
     ALLOCATE(U(1:N));ALLOCATE(RHS(1:N));ALLOCATE(Uold(1:N));
@@ -108,16 +108,16 @@ program schwarz_additif
 	call second_membre(RHS,U,Utop,Ubottom,77,77,1,N,Nx,dx,dy,Cx,Cy)
 	!Preparation de requete persistante
 	if (myrank == 0)then
-		call MPI_Send_init(U(itop:itop+Nx-1), Nx, MPI_DOUBLE, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
-		call MPI_Recv_init(Utop(1:Nx), Nx,MPI_DOUBLE, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
+		call MPI_Send_init(U(itop:itop+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
+		call MPI_Recv_init(Utop(1:Nx), Nx,MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
 	elseif (myrank == (wsize - 1)) then
-		call MPI_Send_init(U(ibottom:ibottom+Nx-1), Nx, MPI_DOUBLE, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
-		call MPI_Recv_init(Ubottom(1:Nx),Nx, MPI_DOUBLE, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
+		call MPI_Send_init(U(ibottom:ibottom+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
+		call MPI_Recv_init(Ubottom(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
 	else
-		call MPI_Send_init(U(itop:itop+Nx-1), Nx, MPI_DOUBLE, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
-		call MPI_Recv_init(Utop(1:Nx),Nx, MPI_DOUBLE, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
-		call MPI_Send_init(U(ibottom:ibottom +Nx-1), Nx, MPI_DOUBLE, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
-		call MPI_Recv_init(Ubottom(1:Nx), Nx, MPI_DOUBLE, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
+		call MPI_Send_init(U(itop:itop+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
+		call MPI_Recv_init(Utop(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
+		call MPI_Send_init(U(ibottom:ibottom +Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
+		call MPI_Recv_init(Ubottom(1:Nx), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
 	endif
 	
 	! Initialisation des bords
@@ -146,7 +146,7 @@ program schwarz_additif
 	
 	! Boucle tant que non convergence
 	Do while ((err > eps) .AND. (j < max_iter))
-	
+	teite*) 'debut boucle err:', err,' j:', j
 		! Communication entre les vecteurs
 		if (myrank == 0)then
 		call MPI_Start(send_top, IERROR)
