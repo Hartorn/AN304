@@ -10,12 +10,15 @@ program schwarz_additif
 	! Declaration des variables pour schwarz
 	real*8, parameter  :: eps = 1.d-12
 	real*8	:: error_calcul ,ERR_glob
+	
 	! Decalaration des variables MPI et charges	
-        integer	:: itop,ibottom	 !indice de localisation des debuts de msg a envoyer
+    integer	:: itop,ibottom	 !indice de localisation des debuts de msg a envoyer
+	
 	! Declaration des variables numeriques
 	integer	:: l,Max_l
 	integer :: R
 	real*8	:: t_debut,t_fin,t_max
+	
 	! Declaration des variables du pb a resoudre
 	integer	:: Nx,Ny,N, myrank, wsize, IERROR, Nb_ligne_proc, max_iter, reste
 	real*8	:: dx,dy,Lx,Ly,posx,posy
@@ -32,6 +35,7 @@ program schwarz_additif
 	 
 	max_iter = 100000 
 	j=0
+	
 	if(iargc()/=0) then
 		call getarg(1, mode)
 		mode = TRIM(mode)
@@ -39,12 +43,12 @@ program schwarz_additif
 		mode = "0"
 	endif
 
-        Ny = 10!*Np
-        Nx = 10 
-        R  = 1 !Recouvrement en Nbr de lignes (1 est le minimum)
-        Lx = 1.0d0
-        Ly = 1.0d0 
-		D  = 1.0d0 !coefficient de diffusion de l equation
+    Ny = 10!*Np
+    Nx = 10 
+    R  = 1 !Recouvrement en Nbr de lignes (1 est le minimum)
+    Lx = 1.0d0
+    Ly = 1.0d0 
+	D  = 1.0d0 !coefficient de diffusion de l equation
 	
 	!Lecture des variables dans un fichier
 	open(11, file='param', status ='old')
@@ -68,31 +72,17 @@ program schwarz_additif
     N  = Nx*Ny
     
     if(myrank < reste) then
-    ibottom = myrank*(Nb_ligne_proc+1)*Nx+1
+		ibottom = myrank*(Nb_ligne_proc+1)*Nx+1
     else
-    ibottom = (myrank+reste)*(Nb_ligne_proc)*Nx+1
+		ibottom = (myrank+reste)*(Nb_ligne_proc)*Nx+1
     endif
     itop = ibottom + (Nb_ligne_proc-1)*Nx
-!~     if(myrank < reste) then
-!~    	itop = Nx*(Nb_ligne_proc)+1
-!~    	N = Nx*(Nb_ligne_proc+1+R)+1
-!~     else
-!~    	itop = Nx*(Nb_ligne_proc-1)+1
-!~ 	N = Nx*(Nb_ligne_proc+R)+1
-!~     endif
-!~ 	ibottom = 1
-	
-!~ 	if(reste < myrank) then
-!~ 	itop = itop+Nx
-!~ 	N = Nx*(Nb_ligne_proc+1+R)
-!~ 	else
-!~ 	N = Nx*(Nb_ligne_proc+R)
-!~ 	endif
 	
 	 write(*,*) 'ibottom,', ibottom,'itop', itop+Nx-1
-
+	 
     ! Allocation dynamique pour chaque proc en tenant compte du recouvrement
     ALLOCATE(U(1:N));ALLOCATE(RHS(1:N));ALLOCATE(Uold(1:N));
+	
 	! Allocation dynamique pour la communication
 	ALLOCATE(Utop(1:Nx));ALLOCATE(Ubottom(1:Nx))
 
@@ -122,77 +112,72 @@ program schwarz_additif
 	
 	! Initialisation des bords
 	! Communication entre les vecteurs
-		if (myrank == 0)then
+	if (myrank == 0)then
 		call MPI_Start(send_top, IERROR)
 		call MPI_Start(recv_top, IERROR)
-		elseif (myrank == (wsize - 1)) then
+	elseif (myrank == (wsize - 1)) then
 		call MPI_Start(send_bottom, IERROR)
 		call MPI_Start(recv_bottom, IERROR)
-		else
+	else
 		call MPI_Start(send_top, IERROR)
 		call MPI_Start(recv_top, IERROR)
 		call MPI_Start(send_bottom, IERROR)
 		call MPI_Start(recv_bottom, IERROR)
-		endif
+	endif
 	
 	if (myrank == 0)then
-		call MPI_Wait(recv_top, IERROR)
+		call MPI_Wait(recv_top, MPI_STATUS_IGNORE,IERROR)
 		elseif (myrank == (wsize - 1)) then
-		call MPI_Wait(recv_bottom, IERROR)
-		else
-		call MPI_Wait(recv_top, IERROR)
-		call MPI_Wait(recv_bottom, IERROR)
-		endif
-        error_calcul=1	
-	!write(*,*) 'debut boucle err:', error_calcul,' j:', j
-
+		call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE,IERROR)
+	else
+		call MPI_Wait(recv_top, MPI_STATUS_IGNORE,IERROR)
+		call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE,IERROR)
+	endif
+    
 	! Boucle tant que non convergence
 	Do while ((error_calcul > eps) .AND. (j < max_iter))
-!~ 	write(*,*) 'debut boucle err:', error_calcul,' j:', j
 		! Communication entre les vecteurs
 		if (myrank == 0)then
-		call MPI_Start(send_top, IERROR)
-		call MPI_Start(recv_top, IERROR)
+			call MPI_Start(send_top, IERROR)
+			call MPI_Start(recv_top, IERROR)
 		elseif (myrank == (wsize - 1)) then
-		call MPI_Start(send_bottom, IERROR)
-		call MPI_Start(recv_bottom, IERROR)
+			call MPI_Start(send_bottom, IERROR)
+			call MPI_Start(recv_bottom, IERROR)
 		else
-		call MPI_Start(send_top, IERROR)
-		call MPI_Start(recv_top, IERROR)
-		call MPI_Start(send_bottom, IERROR)
-		call MPI_Start(recv_bottom, IERROR)
+			call MPI_Start(send_top, IERROR)
+			call MPI_Start(recv_top, IERROR)
+			call MPI_Start(send_bottom, IERROR)
+			call MPI_Start(recv_bottom, IERROR)
 		endif
 		
-!~         Uold(1:N)=U(1:N)
-	Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)
+		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)
 
 		! Resolution du systeme lineaire (une iteration)
-			if(mode == "0")then
-				call grad(Aii,Cx,Cy,Nx,1,N,RHS,U,l)
-			else if(mode == "1") then
-				call gauss(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U, Uold)
-			else
-				call jacobi(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U,Uold,l)
-			endif
+		if(mode == "0")then
+			call grad(Aii,Cx,Cy,Nx,1,N,RHS,U,l)
+		else if(mode == "1") then
+			call gauss(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U, Uold)
+		else
+			call jacobi(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U,Uold,l)
+		endif
 			
 		! Attente de la fin des envois
 		if (myrank == 0)then
-			call MPI_Wait(send_top, IERROR)
+			call MPI_Wait(send_top, MPI_STATUS_IGNORE, IERROR)
 		elseif (myrank == (wsize - 1)) then
-			call MPI_Wait(send_bottom, IERROR)
+			call MPI_Wait(send_bottom, MPI_STATUS_IGNORE, IERROR)
 		else
-			call MPI_Wait(send_top, IERROR)
-			call MPI_Wait(send_bottom, IERROR)
+			call MPI_Wait(send_top, MPI_STATUS_IGNORE, IERROR)
+			call MPI_Wait(send_bottom, MPI_STATUS_IGNORE, IERROR)
 		endif
 		
 		!calcul de l erreur
 		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
         error_calcul = sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
-!~         write(*,*)'avant allreduce err :', error_calcul		
 		
 		! Test de verification de convergence (MPI_all_reduce)
 		call MPI_Allreduce(MPI_IN_PLACE, error_calcul,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
-!~ 		write(*,*)'apres allreduce err :', error_calcul	
+		
 		j=j+1
 		
 		! Attente de la fin des receptions
@@ -204,10 +189,9 @@ program schwarz_additif
 			call MPI_Wait(recv_top, MPI_STATUS_IGNORE, IERROR)
 			call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE, IERROR)
 		endif
-!~ 		write(*,*)'fin boucle :', error_calcul, 'j:', j	
 	ENDDO
-		write(*,*) 'fin , convergence en ', j, 'iterations', error_calcul
-!~ 		call jacobi(Aii,Cx,Cy,Nx,1,N,RHS,U,Uold,l)
+	
+	write(*,*) 'fin , convergence en ', j, 'iterations', error_calcul
 
 	call wrisol( U,Nx,Ny,dx,dy,77,1,N )
 	
