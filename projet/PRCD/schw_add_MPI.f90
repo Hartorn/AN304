@@ -204,6 +204,7 @@ program schwarz_additif
 			call MPI_Wait(recv_top, IERROR)
 			call MPI_Wait(recv_bottom, IERROR)
 		endif
+		write(*,*)'fin boucle :', error, 'j:', j	
 	ENDDO
 		write(*,*) 'fin , convergence en ', j, 'iterations', error
 !~ 		call jacobi(Aii,Cx,Cy,Nx,1,N,RHS,U,Uold,l)
