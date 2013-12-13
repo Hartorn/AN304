@@ -1,5 +1,5 @@
 FC = mpif90.openmpi
-FCFLAGS = -fbounds-check -ffree-form -pedantic-errors -Wall -Wconversion -Wunderflow -Wextra -Wunreachable-code -ffpe -trap=invalid,zero,overflow,underflow -g3 -fbounds-check -O0 -fstack-protector-all
+FCFLAGS = -fbounds-check -ffree-form -pedantic-errors -Wall -Wconversion -Wunderflow -Wextra -Wunreachable-code -ffpe-trap=invalid,zero,overflow,underflow -g3 -fbounds-check -O0 -fstack-protector-all
 #~ FCFLAGS = -O3 -std=f2003
 FCFLAGS+= -std=f2003
 PROGRAMS = schwarz_additif 
@@ -19,7 +19,7 @@ schw_add_MPI.o : schw_add_MPI.f90 utils.mod
 
 utilitaire.o : utilitaire.f90
 	$(FC) -std=f2003 -c $<
-	
+
 second_membre.o : second_membre.f90
 	$(FC) -std=f2003 -c $<
 
