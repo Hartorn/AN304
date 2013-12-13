@@ -191,7 +191,7 @@ program schwarz_additif
                 err=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
                         write(*,*)'err :', err		
 		! Test de verification de convergence (MPI_all_reduce)
-		call MPI_Allreduce(MPI_IN_Perr, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD)
+		call MPI_Allreduce(MPI_IN_PLACE, err, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
 		j=j+1
 		
 		! Attente de la fin des receptions
