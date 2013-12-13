@@ -3,7 +3,7 @@ FCFLAGS = -fbounds-check -ffree-form -std=f95 -pedantic-errors -Wall -Wconversio
 #~ FCFLAGS = -O3
 PROGRAMS = schwarz_additif 
 SRC= $(wildcard *.f90)
-OBJ= $(SRC:.f90=.mod)
+OBJ= $(SRC:.f90=.o)
 
 all: $(PROGRAMS)
 
