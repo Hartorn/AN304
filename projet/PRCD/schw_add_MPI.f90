@@ -178,30 +178,31 @@ program schwarz_additif
 			
 		! Attente de la fin des envois
 		if (myrank == 0)then
-		call MPI_Wait(send_top, IERROR)
+			call MPI_Wait(send_top, IERROR)
 		elseif (myrank == (wsize - 1)) then
-		call MPI_Wait(send_bottom, IERROR)
+			call MPI_Wait(send_bottom, IERROR)
 		else
-		call MPI_Wait(send_top, IERROR)
-		call MPI_Wait(send_bottom, IERROR)
+			call MPI_Wait(send_top, IERROR)
+			call MPI_Wait(send_bottom, IERROR)
 		endif
 		
 		!calcul de l erreur
 		Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
-                err=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
-                        write(*,*)'err :', err		
+        err=sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
+        write(*,*)'err :', err		
+		
 		! Test de verification de convergence (MPI_all_reduce)
-		call MPI_Allreduce(MPI_IN_PLACE, err,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
+		call MPI_Allreduce(err, err,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
 		j=j+1
 		
 		! Attente de la fin des receptions
 		if (myrank == 0)then
-		call MPI_Wait(recv_top, IERROR)
+			call MPI_Wait(recv_top, IERROR)
 		elseif (myrank == (wsize - 1)) then
-		call MPI_Wait(recv_bottom, IERROR)
+			call MPI_Wait(recv_bottom, IERROR)
 		else
-		call MPI_Wait(recv_top, IERROR)
-		call MPI_Wait(recv_bottom, IERROR)
+			call MPI_Wait(recv_top, IERROR)
+			call MPI_Wait(recv_bottom, IERROR)
 		endif
 	ENDDO
 		write(*,*) 'fin , convergence en ', j, 'iterations', err
