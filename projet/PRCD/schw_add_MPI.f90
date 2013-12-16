@@ -64,6 +64,8 @@ program schwarz_additif
     Nb_ligne_proc = Ny/wsize
     reste = mod(Ny,wsize)
 
+!~  write(*,*) 'nb lignes ', Nb_ligne_proc, ' reste ', reste
+        
     dx = Lx/(1+Nx)
     dy = Ly/(1+Ny)
     Aii = 2.d0*D/(dx*dx)+2.d0*D/(dy*dy) ! Terme diagonal de la matrice
@@ -73,10 +75,14 @@ program schwarz_additif
 
     if(myrank < reste) then
         ibottom = myrank*(Nb_ligne_proc+1)*Nx+1
+        itop = ibottom + Nb_ligne_proc*Nx
+    elseif (reste /= 0) then
+        ibottom = (myrank+reste-1)*Nb_ligne_proc*Nx+1
+        itop = ibottom + (Nb_ligne_proc-1)*Nx
     else
-        ibottom = (myrank+reste)*(Nb_ligne_proc)*Nx+1
+        ibottom = (myrank)*Nb_ligne_proc*Nx+1
+        itop = ibottom + (Nb_ligne_proc-1)*Nx
     endif
-    itop = ibottom + (Nb_ligne_proc-1)*Nx
 
      write(*,*) 'ibottom,', ibottom,'itop', itop+Nx-1
 
