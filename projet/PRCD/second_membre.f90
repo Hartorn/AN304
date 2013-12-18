@@ -49,7 +49,7 @@ CALL nloc(i,j,i1,Nx)
 B(i1) = B(i1) -left(0.d0,i*dy,0.d0)*Cx
 B(i1+Nx-1) = B(i1+Nx-1) -right(1.d0,i*dy,0.d0)*Cx
 
-!Ligne du milieux
+!Ligne du milieu
 j = i1+Nx
 do i = 2, M-1
     call nloc(k,l,j,Nx)

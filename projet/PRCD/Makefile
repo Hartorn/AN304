@@ -11,7 +11,7 @@ all: $(PROGRAMS)
 schwarz_additif: $(OBJ) utils.mod
 	$(FC) $(FCFLAGS) -o $@ $(OBJ) $(LDFLAGS) >> make.log 2>&1
 
-utils.mod : utilitaire.o utilitaire.f90
+utils.mod : utilitaire.f90
 	$(FC) -std=f2003 -c $^
 
 schw_add_MPI.o : schw_add_MPI.f90 utils.mod

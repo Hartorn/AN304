@@ -15,7 +15,7 @@ program schwarz_additif
     integer :: itop,ibottom  !indice de localisation des debuts de msg a envoyer
 
     ! Declaration des variables numeriques
-    integer :: l,Max_l
+    integer :: l,Max_l, Nb_elem, aux, aux2, aux3
     integer :: R
     double precision  :: t_debut,t_fin,t_max
 
@@ -65,17 +65,19 @@ program schwarz_additif
     reste = mod(Ny,wsize)
 
 !~  write(*,*) 'nb lignes ', Nb_ligne_proc, ' reste ', reste
-        
+
     dx = Lx/(1+Nx)
     dy = Ly/(1+Ny)
     Aii = 2.d0*D/(dx*dx)+2.d0*D/(dy*dy) ! Terme diagonal de la matrice
     Cx  = -1.d0*D/(dx*dx)   ! Terme extra-diagonale proche
     Cy  = -1.d0*D/(dy*dy)   ! Terme extra-diagonale eloigne
     N  = Nx*Ny
+    Nb_elem = Nb_ligne_proc*Nx
 
     if(myrank < reste) then
         ibottom = myrank*(Nb_ligne_proc+1)*Nx+1
         itop = ibottom + Nb_ligne_proc*Nx
+        Nb_elem = Nb_elem+Nx
     elseif (reste /= 0) then
         ibottom = (myrank+reste-1)*Nb_ligne_proc*Nx+1
         itop = ibottom + (Nb_ligne_proc-1)*Nx
@@ -131,6 +133,8 @@ program schwarz_additif
         call MPI_Start(recv_bottom, IERROR)
     endif
 
+    call second_membre(RHS,U,Utop,Ubottom,77,77,1,N,Nx,dx,dy,Cx,Cy)
+
     if (myrank == 0)then
         call MPI_Wait(recv_top, MPI_STATUS_IGNORE,IERROR)
         elseif (myrank == (wsize - 1)) then
@@ -142,6 +146,18 @@ program schwarz_additif
 
     ! Boucle tant que non convergence
     Do while ((error_calcul > eps) .AND. (j < max_iter))
+
+        Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)
+
+        ! Resolution du systeme lineaire (une iteration)
+        if(mode == "0")then
+            call grad(Aii,Cx,Cy,Nx,ibottom,itop+R*Nx-1,RHS,U,l)
+        else if(mode == "1") then
+            call gauss(Aii,Cx,Cy,Nx,ibottom,itop+R*Nx-1,RHS,U, Uold)
+        else
+            call jacobi(Aii,Cx,Cy,Nx,ibottom,itop+R*Nx-1,RHS,U,Uold)
+        endif
+
         ! Communication entre les vecteurs
         if (myrank == 0)then
             call MPI_Start(send_top, IERROR)
@@ -154,27 +170,6 @@ program schwarz_additif
             call MPI_Start(recv_top, IERROR)
             call MPI_Start(send_bottom, IERROR)
             call MPI_Start(recv_bottom, IERROR)
-        endif
-
-        Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)
-
-        ! Resolution du systeme lineaire (une iteration)
-        if(mode == "0")then
-            call grad(Aii,Cx,Cy,Nx,1,N,RHS,U,l)
-        else if(mode == "1") then
-            call gauss(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U, Uold)
-        else
-            call jacobi(Aii,Cx,Cy,Nx,ibottom,itop+Nx-1,RHS,U,Uold)
-        endif
-
-        ! Attente de la fin des envois
-        if (myrank == 0)then
-            call MPI_Wait(send_top, MPI_STATUS_IGNORE, IERROR)
-        elseif (myrank == (wsize - 1)) then
-            call MPI_Wait(send_bottom, MPI_STATUS_IGNORE, IERROR)
-        else
-            call MPI_Wait(send_top, MPI_STATUS_IGNORE, IERROR)
-            call MPI_Wait(send_bottom, MPI_STATUS_IGNORE, IERROR)
         endif
 
         !calcul de l erreur
@@ -195,11 +190,51 @@ program schwarz_additif
             call MPI_Wait(recv_top, MPI_STATUS_IGNORE, IERROR)
             call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE, IERROR)
         endif
+
+        !Modification des bords
+        call second_membre(RHS,U,Utop,Ubottom,77,77,ibottom,itop+Nx-1,Nx,dx,dy,Cx,Cy)
+
+        ! Attente de la fin des envois
+        if (myrank == 0)then
+            call MPI_Wait(send_top, MPI_STATUS_IGNORE, IERROR)
+        elseif (myrank == (wsize - 1)) then
+            call MPI_Wait(send_bottom, MPI_STATUS_IGNORE, IERROR)
+        else
+            call MPI_Wait(send_top, MPI_STATUS_IGNORE, IERROR)
+            call MPI_Wait(send_bottom, MPI_STATUS_IGNORE, IERROR)
+        endif
     ENDDO
 
-    write(*,*) 'fin , convergence en ', j, 'iterations', error_calcul
+    if(myrank==0)then
+        write(*,*) 'fin , convergence en ', j, 'iterations', error_calcul
+    endif
 
-    call wrisol( U,Nx,Ny,dx,dy,77,1,N )
+    ! Recreer le vecteur complet
+    if (myrank==0)then
+        DO l=1, wsize-1,1
+            if (l<reste)then
+                aux = 1+Nx*(1+Nb_ligne_proc)*l
+                aux2 = aux+Nx*(1+Nb_ligne_proc)-1
+                aux3 = Nx*(1+Nb_ligne_proc)
+                write(*,*) 'debut', aux, 'fin', aux2, 'nb' ,aux3
+                call MPI_Recv(U(aux:aux2),aux3 , MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE ,IERROR)
+            else
+                aux = 1+Nx*reste+l*Nx*Nb_ligne_proc
+                aux2 = Nx*reste+(l+1)*Nx*Nb_ligne_proc
+                aux3 = Nx*Nb_ligne_proc
+                write(*,*) 'debut', aux, 'fin', aux2, 'nb' ,aux3
+                call MPI_Recv(U(aux:aux2), aux3, MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD,MPI_STATUS_IGNORE, IERROR)
+            endif
+        ENDDO
+    else
+       call MPI_Send(U(ibottom:itop+Nx-1), Nb_elem, MPI_DOUBLE_PRECISION, 0, 99, MPI_COMM_WORLD, IERROR)
+!~        write(*,*) "succes", MPI_SUCCESS == IERROR
+    endif
+!~     call MPI_Gather(U(ibottom:itop+Nx-1), , MPI_DOUBLE_PRECISION, U(1:N), Nx, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, IERROR)
+
+    if(myrank==0)then
+        call wrisol( U,Nx,Ny,dx,dy,77,1,N )
+    endif
 
     if (myrank == 0)then
         call MPI_Request_free(send_top, IERROR)

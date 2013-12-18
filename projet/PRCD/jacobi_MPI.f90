@@ -9,8 +9,8 @@
     invAii = 1.d0/Aii
     M = (iN-i1+1)/Nx
 
-	Uold(i1:iN)=U(i1:iN)
-	call MATVEC(0.d+00,Cx,Cy,Nx,M,i1,Uold,U)
-	U(i1:iN)=(B(i1:iN)-U(i1:iN))*invAii
+    Uold(i1:iN)=U(i1:iN)
+    call MATVEC(0.d+00,Cx,Cy,Nx,M,i1,Uold,U)
+    U(i1:iN)=(B(i1:iN)-U(i1:iN))*invAii
 
     end subroutine jacobi
