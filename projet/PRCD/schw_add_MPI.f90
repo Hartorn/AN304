@@ -16,7 +16,7 @@ program schwarz_additif
 
     ! Declaration des variables numeriques
     integer :: l,Max_l, Nb_elem, aux, aux2, aux3
-    integer :: R
+    integer :: R, modif_d, modif_f, idebut, ifin
     double precision  :: t_debut,t_fin,t_max
 
     ! Declaration des variables du pb a resoudre
@@ -100,21 +100,32 @@ program schwarz_additif
     Ubottom(1:Nx)  = 0.0d0
     error_calcul=1
 
+    if(myrank ==0)then
+        idebut = 1
+        ifin = itop + R*Nx + Nx -1
+    else if (myrank == wsize -1) then
+        idebut = ibottom -R*Nx
+        ifin = itop + Nx - 1
+    else
+        idebut = ibottom - R*Nx
+        ifin = itop + R*Nx + Nx -1
+    endif
+
 !   schw_iter = 0
     ERR_glob = 1.d3
     ! Remplissage du second membre incluant les conditions de Bords Dirichlet
     call second_membre(RHS,U,Utop,Ubottom,77,77,1,N,Nx,dx,dy,Cx,Cy)
     !Preparation de requete persistante
     if (myrank == 0)then
-        call MPI_Send_init(U(itop:itop+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
+        call MPI_Send_init(U(ifin-Nx+1:ifin), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
         call MPI_Recv_init(Utop(1:Nx), Nx,MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
     elseif (myrank == (wsize - 1)) then
-        call MPI_Send_init(U(ibottom:ibottom+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
+        call MPI_Send_init(U(idebut:idebut+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
         call MPI_Recv_init(Ubottom(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
     else
-        call MPI_Send_init(U(itop:itop+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
+        call MPI_Send_init(U(ifin-Nx+1:ifin), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
         call MPI_Recv_init(Utop(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
-        call MPI_Send_init(U(ibottom:ibottom +Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
+        call MPI_Send_init(U(idebut:idebut+Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
         call MPI_Recv_init(Ubottom(1:Nx), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
     endif
 
@@ -147,15 +158,15 @@ program schwarz_additif
     ! Boucle tant que non convergence
     Do while ((error_calcul > eps) .AND. (j < max_iter))
 
-        Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)
-
+        Uold(idebut:ifin)=U(idebut:ifin)
+        
         ! Resolution du systeme lineaire (une iteration)
         if(mode == "0")then
-            call grad(Aii,Cx,Cy,Nx,ibottom,itop+R*Nx-1,RHS,U,l)
+            call grad(Aii,Cx,Cy,Nx,idebut,ifin,RHS,U,l)
         else if(mode == "1") then
-            call gauss(Aii,Cx,Cy,Nx,ibottom,itop+R*Nx-1,RHS,U, Uold)
+            call gauss(Aii,Cx,Cy,Nx,idebut,ifin,RHS,U, Uold)
         else
-            call jacobi(Aii,Cx,Cy,Nx,ibottom,itop+R*Nx-1,RHS,U,Uold)
+            call jacobi(Aii,Cx,Cy,Nx,idebut,ifin,RHS,U,Uold)
         endif
 
         ! Communication entre les vecteurs
@@ -173,8 +184,8 @@ program schwarz_additif
         endif
 
         !calcul de l erreur
-        Uold(ibottom:itop+Nx-1)=U(ibottom:itop+Nx-1)-Uold(ibottom:itop+Nx-1)
-        error_calcul = sqrt(dot_product(Uold(ibottom:itop+Nx-1),Uold(ibottom:itop+Nx-1)))
+        Uold(idebut:ifin)=U(idebut:ifin)-Uold(idebut:ifin)
+        error_calcul = sqrt(dot_product(Uold(idebut:ifin),Uold(idebut:ifin)))
 
         ! Test de verification de convergence (MPI_all_reduce)
         call MPI_Allreduce(MPI_IN_PLACE, error_calcul,1,  MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, IERROR)
@@ -192,7 +203,7 @@ program schwarz_additif
         endif
 
         !Modification des bords
-        call second_membre(RHS,U,Utop,Ubottom,77,77,ibottom,itop+Nx-1,Nx,dx,dy,Cx,Cy)
+        call second_membre(RHS,U,Utop,Ubottom,77,77,idebut,ifin,Nx,dx,dy,Cx,Cy)
 
         ! Attente de la fin des envois
         if (myrank == 0)then

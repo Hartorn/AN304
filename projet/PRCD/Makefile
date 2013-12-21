@@ -29,10 +29,15 @@ matvec.o : matvec.f90
 %.o: %.f90
 	$(FC) $(FCFLAGS) -c $< >> make.log 2>&1
 
+launch : 
+	mpiexec -np 4 $(PROGRAMS) 0
+	gnuplot plot.config
+	gnome-open resultats.png
+
 .PHONY: clean mrproper
 
 clean:
-	rm -f *.o *.mod *.MOD make.log
+	rm -f *.o *.mod *.MOD make.log *.png
 
 mrproper: clean
 	rm -f *~ $(PROGRAMS)
