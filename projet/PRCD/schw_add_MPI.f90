@@ -221,31 +221,31 @@ program schwarz_additif
     endif
 
     ! Recreer le vecteur complet
-    if (myrank==0)then
-        DO l=1, wsize-1,1
-            if (l<reste)then
-                aux = 1+Nx*(1+Nb_ligne_proc)*l
-                aux2 = aux+Nx*(1+Nb_ligne_proc)-1
-                aux3 = Nx*(1+Nb_ligne_proc)
-                write(*,*) 'debut', aux, 'fin', aux2, 'nb' ,aux3
-                call MPI_Recv(U(aux:aux2),aux3 , MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE ,IERROR)
-            else
-                aux = 1+Nx*reste+l*Nx*Nb_ligne_proc
-                aux2 = Nx*reste+(l+1)*Nx*Nb_ligne_proc
-                aux3 = Nx*Nb_ligne_proc
-                write(*,*) 'debut', aux, 'fin', aux2, 'nb' ,aux3
-                call MPI_Recv(U(aux:aux2), aux3, MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD,MPI_STATUS_IGNORE, IERROR)
-            endif
-        ENDDO
-    else
-       call MPI_Send(U(ibottom:itop+Nx-1), Nb_elem, MPI_DOUBLE_PRECISION, 0, 99, MPI_COMM_WORLD, IERROR)
-!~        write(*,*) "succes", MPI_SUCCESS == IERROR
-    endif
-!~     call MPI_Gather(U(ibottom:itop+Nx-1), , MPI_DOUBLE_PRECISION, U(1:N), Nx, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, IERROR)
+!~     if (myrank==0)then
+!~         DO l=1, wsize-1,1
+!~             if (l<reste)then
+!~                 aux = 1+Nx*(1+Nb_ligne_proc)*l
+!~                 aux2 = aux+Nx*(1+Nb_ligne_proc)-1
+!~                 aux3 = Nx*(1+Nb_ligne_proc)
+!~                 write(*,*) 'debut', aux, 'fin', aux2, 'nb' ,aux3
+!~                 call MPI_Recv(U(aux:aux2),aux3 , MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE ,IERROR)
+!~             else
+!~                 aux = 1+Nx*reste+l*Nx*Nb_ligne_proc
+!~                 aux2 = Nx*reste+(l+1)*Nx*Nb_ligne_proc
+!~                 aux3 = Nx*Nb_ligne_proc
+!~                 write(*,*) 'debut', aux, 'fin', aux2, 'nb' ,aux3
+!~                 call MPI_Recv(U(aux:aux2), aux3, MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD,MPI_STATUS_IGNORE, IERROR)
+!~             endif
+!~         ENDDO
+!~     else
+!~        call MPI_Send(U(ibottom:itop+Nx-1), Nb_elem, MPI_DOUBLE_PRECISION, 0, 99, MPI_COMM_WORLD, IERROR)
+!~     endif
 
-    if(myrank==0)then
-        call wrisol( U,Nx,Ny,dx,dy,77,1,N )
-    endif
+!~     if(myrank==0)then
+!~         call wrisol( U,Nx,Ny,dx,dy,77,1,N )
+!~     endif
+
+    call wrisol( U,Nx,Ny,dx,dy,77,idebut,ifin )
 
     if (myrank == 0)then
         call MPI_Request_free(send_top, IERROR)
