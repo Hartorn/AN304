@@ -86,7 +86,7 @@ program schwarz_additif
         itop = ibottom + (Nb_ligne_proc-1)*Nx
     endif
 
-     write(*,*) 'ibottom,', ibottom,'itop', itop+Nx-1
+!~      write(*,*) 'ibottom,', ibottom,'itop', itop+Nx-1
 
     ! Allocation dynamique pour chaque proc en tenant compte du recouvrement
     ALLOCATE(U(1:N));ALLOCATE(RHS(1:N));ALLOCATE(Uold(1:N));ALLOCATE(Uold2(1:N));
@@ -125,11 +125,13 @@ program schwarz_additif
         &  MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
         call MPI_Recv_init(Ubottom(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
     else
-!~         write(*,*) 'proc', myrank, 'envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
-!~         write(*,*) 'proc',myrank,'envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
-        call MPI_Send_init(U(itop-Nx:itop), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
+        write(*,*) 'proc', myrank, 'envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
+        write(*,*) 'proc',myrank,'envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
+        call MPI_Send_init(U(itop-R*Nx:itop-(R-1)*Nx-1), Nx,&
+        &  MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
         call MPI_Recv_init(Utop(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
-        call MPI_Send_init(U(ibottom+Nx:ibottom+2*Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
+        call MPI_Send_init(U(ibottom+R*Nx:ibottom+(R+1)*Nx-1), Nx, &
+        & MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
         call MPI_Recv_init(Ubottom(1:Nx), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
     endif
 
@@ -156,7 +158,7 @@ program schwarz_additif
         call MPI_Wait(recv_top, MPI_STATUS_IGNORE,IERROR)
         call MPI_Wait(recv_bottom, MPI_STATUS_IGNORE,IERROR)
     endif
-        write(*,*) 'proc', myrank, idebut, ifin
+!~         write(*,*) 'proc', myrank, idebut, ifin
 
     ! Remplissage du second membre incluant les conditions de Bords Dirichlet
     call second_membre(RHS(idebut:ifin),U(idebut:ifin),Utop,Ubottom,myrank,wsize,idebut,ifin,Nx,dx,dy,Cx,Cy)
