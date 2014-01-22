@@ -125,8 +125,8 @@ program schwarz_additif
         &  MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
         call MPI_Recv_init(Ubottom(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
     else
-        write(*,*) 'proc', myrank, 'envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
-        write(*,*) 'proc',myrank,'envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
+        write(*,*) 'proc', myrank, 'envoi top', itop-R*Nx, 'fin', itop-(R-1)*Nx-1, 'nb' ,Nx
+        write(*,*) 'proc',myrank,'envoi bottom',ibottom+R*Nx, 'fin', ibottom+(R+1)*Nx-1, 'nb' ,Nx
         call MPI_Send_init(U(itop-R*Nx:itop-(R-1)*Nx-1), Nx,&
         &  MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
         call MPI_Recv_init(Utop(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
