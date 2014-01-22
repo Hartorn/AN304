@@ -31,8 +31,8 @@ matvec.o : matvec.f90
 
 launch : 
 	mpiexec -np 4 $(PROGRAMS) 2
+	cat sol0*.dat >sol.dat 
 	gnuplot plot.config
-	gnome-open resultats.png
 
 .PHONY: clean mrproper
 

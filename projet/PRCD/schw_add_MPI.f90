@@ -117,16 +117,16 @@ program schwarz_additif
 !~     call second_membre(RHS,U,Utop,Ubottom,77,77,1,N,Nx,dx,dy,Cx,Cy)
     !Preparation de requete persistante
     if (myrank == 0)then
-        write(*,*) 'proc0 envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
+!~         write(*,*) 'proc0 envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
         call MPI_Send_init(U(itop-Nx:itop-1), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
         call MPI_Recv_init(Utop(1:Nx), Nx,MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
     elseif (myrank == (wsize - 1)) then
-        write(*,*) 'proc n-1 envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
+!~         write(*,*) 'proc n-1 envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
         call MPI_Send_init(U(ibottom+Nx:ibottom+2*Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
         call MPI_Recv_init(Ubottom(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
     else
-        write(*,*) 'proc', myrank, 'envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
-        write(*,*) 'proc',myrank,'envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
+!~         write(*,*) 'proc', myrank, 'envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
+!~         write(*,*) 'proc',myrank,'envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
         call MPI_Send_init(U(itop-Nx:itop), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
         call MPI_Recv_init(Utop(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
         call MPI_Send_init(U(ibottom+Nx:ibottom+2*Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
