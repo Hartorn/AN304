@@ -113,8 +113,6 @@ program schwarz_additif
 
 !   schw_iter = 0
     ERR_glob = 1.d3
-    ! Remplissage du second membre incluant les conditions de Bords Dirichlet
-!~     call second_membre(RHS,U,Utop,Ubottom,77,77,1,N,Nx,dx,dy,Cx,Cy)
     !Preparation de requete persistante
     if (myrank == 0)then
 !~         write(*,*) 'proc0 envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
@@ -158,6 +156,7 @@ program schwarz_additif
     endif
         write(*,*) 'proc', myrank, idebut, ifin
 
+    ! Remplissage du second membre incluant les conditions de Bords Dirichlet
     call second_membre(RHS(idebut:ifin),U(idebut:ifin),Utop,Ubottom,myrank,wsize,idebut,ifin,Nx,dx,dy,Cx,Cy)
 
     ! Boucle tant que non convergence
@@ -168,7 +167,6 @@ program schwarz_additif
         ! Resolution du systeme lineaire
         if(mode == "0")then
             call grad(Aii,Cx,Cy,Nx,idebut,ifin,RHS(idebut:ifin),U(idebut:ifin),l)
-!~             call grad(Aii,Cx,Cy,Nx,1,N,RHS,U,l)
         else if(mode == "1") then
             call gauss(Aii,Cx,Cy,Nx,idebut,ifin,RHS,U, Uold)
         else
@@ -226,34 +224,10 @@ program schwarz_additif
         write(*,*) 'fin , convergence en ', j, 'iterations', error_calcul
     endif
 
-    ! Recreer le vecteur complet
-!~     if (myrank==0)then
-!~         DO l=1, wsize-1,1
-!~             if (l<reste)then
-!~                 aux = 1+Nx*(1+Nb_ligne_proc)*l
-!~                 aux2 = aux+Nx*(1+Nb_ligne_proc)-1
-!~                 aux3 = Nx*(1+Nb_ligne_proc)
-!~                 write(*,*) 'proc ',l ,'debut', aux, 'fin', aux2, 'nb' ,aux3
-!~                 call MPI_Recv(U(aux:aux2),aux3 , MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE ,IERROR)
-!~             else
-!~                 aux = 1+Nx*reste+l*Nx*Nb_ligne_proc
-!~                 aux2 = Nx*reste+(l+1)*Nx*Nb_ligne_proc
-!~                 aux3 = Nx*Nb_ligne_proc
-!~                 write(*,*) 'proc ',l ,'debut', aux, 'fin', aux2, 'nb' ,aux3
-!~                 call MPI_Recv(U(aux:aux2), aux3, MPI_DOUBLE_PRECISION, l, 99, MPI_COMM_WORLD,MPI_STATUS_IGNORE, IERROR)
-!~             endif
-!~         ENDDO
-!~     else
-!~        call MPI_Send(U(ibottom:itop+Nx-1), Nb_elem, MPI_DOUBLE_PRECISION, 0, 99, MPI_COMM_WORLD, IERROR)
-!~     endif
-
-!~     if(myrank==0)then
-!~         call wrisol( U,Nx,Ny,dx,dy,77,1,N )
-!~         call wrisol( U(idebut:ifin),Nx,Ny,dx,dy,77,idebut,ifin )
-!~     endif
-
+    ! Ecriture de chaque morceau dans son fichier (sol0??.dat)
     call wrisol(U(idebut:ifin),Nx,Ny,dx,dy,myrank,idebut,ifin )
 
+	! Libération des requêtes préparées
     if (myrank == 0)then
         call MPI_Request_free(send_top, IERROR)
         call MPI_Request_free(recv_top, IERROR)
@@ -268,7 +242,7 @@ program schwarz_additif
     endif
 
     call MPI_FINALIZE(IERROR)
-
-    DEALLOCATE(U,RHS,Uold)
+	! Libération des matrices et vecteurs
+    DEALLOCATE(U,RHS,Uold, Uold2)
     DEALLOCATE(Utop,Ubottom)
    end program schwarz_additif
