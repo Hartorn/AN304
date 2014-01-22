@@ -86,7 +86,7 @@ program schwarz_additif
         itop = ibottom + (Nb_ligne_proc-1)*Nx
     endif
 
-!~      write(*,*) 'ibottom,', ibottom,'itop', itop+Nx-1
+     write(*,*) 'ibottom,', ibottom,'itop', itop+Nx-1
 
     ! Allocation dynamique pour chaque proc en tenant compte du recouvrement
     ALLOCATE(U(1:N));ALLOCATE(RHS(1:N));ALLOCATE(Uold(1:N));ALLOCATE(Uold2(1:N));
@@ -115,12 +115,14 @@ program schwarz_additif
     ERR_glob = 1.d3
     !Preparation de requete persistante
     if (myrank == 0)then
-!~         write(*,*) 'proc0 envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
-        call MPI_Send_init(U(itop-Nx:itop-1), Nx, MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
+        write(*,*) 'proc0 envoi top', itop-R*Nx, 'fin', itop-(R-1)*Nx-1, 'nb' ,Nx
+        call MPI_Send_init(U(itop-R*Nx:itop-(R-1)*Nx-1), Nx,  &
+        &                  MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, send_top, IERROR)
         call MPI_Recv_init(Utop(1:Nx), Nx,MPI_DOUBLE_PRECISION, myrank+1, 1, MPI_COMM_WORLD, recv_top, IERROR)
     elseif (myrank == (wsize - 1)) then
-!~         write(*,*) 'proc n-1 envoi bottom', ibottom+Nx, 'fin', ibottom+2*Nx-1, 'nb' ,Nx
-        call MPI_Send_init(U(ibottom+Nx:ibottom+2*Nx-1), Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
+        write(*,*) 'proc n-1 envoi bottom', ibottom+R*Nx, 'fin', ibottom+(R+1)*Nx-1, 'nb' ,Nx
+        call MPI_Send_init(U(ibottom+R*Nx:ibottom+(R+1)*Nx-1), Nx, &
+        &  MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, send_bottom, IERROR)
         call MPI_Recv_init(Ubottom(1:Nx),Nx, MPI_DOUBLE_PRECISION, myrank-1, 1, MPI_COMM_WORLD, recv_bottom, IERROR)
     else
 !~         write(*,*) 'proc', myrank, 'envoi top', itop-Nx, 'fin', itop-1, 'nb' ,Nx
@@ -227,7 +229,7 @@ program schwarz_additif
     ! Ecriture de chaque morceau dans son fichier (sol0??.dat)
     call wrisol(U(idebut:ifin),Nx,Ny,dx,dy,myrank,idebut,ifin )
 
-	! Libération des requêtes préparées
+    ! Libération des requêtes préparées
     if (myrank == 0)then
         call MPI_Request_free(send_top, IERROR)
         call MPI_Request_free(recv_top, IERROR)
@@ -242,7 +244,7 @@ program schwarz_additif
     endif
 
     call MPI_FINALIZE(IERROR)
-	! Libération des matrices et vecteurs
+    ! Libération des matrices et vecteurs
     DEALLOCATE(U,RHS,Uold, Uold2)
     DEALLOCATE(Utop,Ubottom)
    end program schwarz_additif
