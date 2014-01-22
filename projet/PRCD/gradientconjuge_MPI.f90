@@ -20,8 +20,8 @@
       d(i1:iN)=r(i1:iN)
 
       ! boucle du Gradient conjugue
-!~       DO l=1, Nl
-!~          IF( SQRT(residu) .lt. epsilon ) EXIT
+      DO l=1, Nl
+         IF( SQRT(residu) .lt. epsilon ) EXIT
 
          call MATVEC(Aii,Cx,Cy,Nx,M,i1,d,W)
          drl = 0.0d0
@@ -33,12 +33,12 @@
 
          alpha = drl/dwl
          kappa(i1:iN) = kappa(i1:iN) - alpha*d(i1:iN)
-!~          r(i1:iN) = r(i1:iN) - alpha*W(i1:iN)
-!~          beta = SUM(r(i1:iN)*r(i1:iN))/residu
-!~          d(i1:iN) = r(i1:iN) + beta*d(i1:iN)
-!~          residu    = SUM(r(i1:iN)*r(i1:iN))
+         r(i1:iN) = r(i1:iN) - alpha*W(i1:iN)
+         beta = SUM(r(i1:iN)*r(i1:iN))/residu
+         d(i1:iN) = r(i1:iN) + beta*d(i1:iN)
+         residu    = SUM(r(i1:iN)*r(i1:iN))
          !Fin Gradient conjugue
-!~        ENDDO
+       ENDDO
 
        U(i1:iN) = kappa(i1:iN)
 !~        print*, '        Gradient Conjugue',l,residu

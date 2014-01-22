@@ -19,7 +19,7 @@ subroutine second_membre(B,U,Utop,Ubottom,Me,Np,i1,iN,Nx,dx,dy,Cx,Cy)
         posy = (j)*dy
         B(i) = f(posx,posy,0.d0)
     ENDDO
-!   IF( me == 0 )THEN
+   IF( me == 0 )THEN
         l = 1
         DO i = i1, i1+(Nx-1)
             CALL nloc(j,k,i,Nx)
@@ -28,9 +28,9 @@ subroutine second_membre(B,U,Utop,Ubottom,Me,Np,i1,iN,Nx,dx,dy,Cx,Cy)
             Ubottom(l) = bottom(k*dx,0.0d0,0.d0)
             l = l+1
         ENDDO
-!   ENDIF
+   ENDIF
     l = 1
-!   IF( me == Np-1 )THEN
+   IF( me == Np-1 )THEN
         DO i = iN-Nx+1,iN
             CALL nloc(j,k,i,Nx)
             posx = (k)*dx
@@ -38,7 +38,7 @@ subroutine second_membre(B,U,Utop,Ubottom,Me,Np,i1,iN,Nx,dx,dy,Cx,Cy)
             Utop(l) = top(posx,1.d0,0.0d0)
             l = l+1
         ENDDO
-!   ENDIF
+   ENDIF
 !Ligne du bas
 l =1
 do j= i1,i1+(Nx-1)

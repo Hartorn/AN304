@@ -30,7 +30,7 @@ matvec.o : matvec.f90
 	$(FC) $(FCFLAGS) -c $< >> make.log 2>&1
 
 launch : 
-	mpiexec -np 4 $(PROGRAMS) 0
+	mpiexec -np 4 $(PROGRAMS) 2
 	gnuplot plot.config
 	gnome-open resultats.png
 
